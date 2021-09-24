@@ -1,9 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { Platform, StyleSheet, Text, View, ScrollView, Pressable, Modal, TouchableHighlight } from 'react-native';
+import { Platform, StyleSheet, Text, View, ScrollView, Pressable, Modal, TouchableHighlight, ActivityIndicator } from 'react-native';
 import { FontAwesome5, Octicons } from '@expo/vector-icons';
 import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/components/GestureHandlerButton';
 import styles from '../styles/styles'
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import ViiniLisatiedot from './ViiniLisatiedot'
+import EditViini from './EditViini'
+
 
 interface ViinilistaInterface {
     viiniId: number
@@ -12,24 +16,18 @@ interface ViinilistaInterface {
     rypaleId: number
     maaId: number
     hinta: number
+    tahdet: number
+    kommentti: string
     // Kuva: 
     // Viivakoodi: string 
 }
 
 export default function Viinilista() {
+    const [viini, setViini] = useState<Partial<ViinilistaInterface>>({})
     const [tallennetutViinit, setTallennetutViinit] = useState<any>([])
     const [tallennetutViinitYhteensä, setTallennetutViinitYhteensä] = useState(0)
-    //Modaalin kentät alkaa
-    const [ViiniId, setViiniId] = useState(0)
-    const [ViiniNimi, setViiniNimi] = useState('')
-    const [TyyppiId, setTyyppiId] = useState(0)
-    const [RypaleId, setRypaleId] = useState(0)
-    const [MaaId, setMaaId] = useState(0)
-    const [Hinta, setHinta] = useState(0)
-    // const [Kuva, setKuva] = useState() 
-    // const [Viivakoodi, setViivakoodi] = useState()
-    //Modaalin kentät loppuu
     const [viiniTietoModal, setViiniTietoModal] = useState(false)
+    const [viiniEditModal, setViiniEditModal] = useState(false)
     //Tuotelistan päivityksen muuttujat
     const [refreshViinit, setRefreshViinit] = useState(false)
     const [refreshIndicator, setRefreshIndicator] = useState(false)
@@ -55,25 +53,17 @@ export default function Viinilista() {
       setRefreshIndicator(true)
     }
 
-    const idGenerator = () => {
-      var rnds = function () {
-          return (((1 + Math.random()) * 0x10) | 0).toString(16).substring(1);
-      }
-      return (rnds() + rnds() + "-" + rnds() + "-" + rnds() + "-" + rnds() + "-" + rnds() + rnds() + rnds());
+    const editViiniFunc = (item: ViinilistaInterface) => {
+      setViini(item)  // Asettaa Viini -hooks-objektiin klikatun tuotteen koko objektin
+      setViiniEditModal(true) //Edit ikkuna esiin
     }
 
-    const naytaTiedot = (id: number, name: string, tyyppi: number, rypale: number, maa: number, hinta: number ) => {
-      setViiniTietoModal(true),
-      setViiniId(id),
-      setViiniNimi(name),
-      setTyyppiId(tyyppi),
-      setRypaleId(rypale),
-      setMaaId(maa),
-      setHinta(hinta)
-    }
-
-    const closeModal = () => {
+    const closeLisatietoModal = () => {
       setViiniTietoModal(!viiniTietoModal)
+    }
+
+    const closeEditModal = () => {
+      setViiniEditModal(!setViiniEditModal)
     }
 
 
@@ -90,82 +80,63 @@ export default function Viinilista() {
             <Octicons name="sync" size={24} color="black" />
           </View>
         </Pressable>
+        <ActivityIndicator size="small" color="#0000ff" animating={refreshIndicator} />
       </View>
 
       <ScrollView>
         {tallennetutViinit.map((item: ViinilistaInterface) => (
           
           <Pressable 
-            key={idGenerator()} 
+            key={item.viiniId} 
             onPress={() => {
-              naytaTiedot(
-                item.viiniId,
-                item.viiniNimi,
-                item.rypaleId,
-                item.tyyppiId,
-                item.maaId,
-                item.hinta
-              )
+              setViini(item)
+              setViiniTietoModal(true)
             }}
             style={({ pressed }) => [{ backgroundColor: pressed ? 'rgba(49, 179, 192, 0.5)' : 'white'}]}
           >
 
-            <View key={item.viiniId} style={styles.wineContainer}>
-              <View key={idGenerator()} style={{ flexGrow: 1, flexShrink: 1, alignSelf: 'center' }}>
-                <Text key={idGenerator()} style={{ fontSize: 15 }} numberOfLines={1}>{item.viiniNimi}</Text>
-                <Text key={idGenerator()} style={{ color: '#8f8f8f' }} numberOfLines={1}>{'RypäleId ' + (item.rypaleId)}</Text>
-                <Text key={idGenerator()} style={{ color: '#333333' }} numberOfLines={1}>{'\u00E1 ' + (item.hinta == null ? 'hinta puuttuu ' : item.hinta.toFixed(2)) + '\u20AC'}</Text>
+            <View style={styles.wineContainer}>
+              <View style={{ flexGrow: 1, flexShrink: 1, alignSelf: 'center' }}>
+                <Text style={{ fontSize: 15 }}>{item.viiniNimi}</Text>
+                <Text style={{ color: '#8f8f8f' }}>{'RypäleId ' + (item.rypaleId)}</Text>
+                <Text style={{ color: '#333333', marginBottom: 10 }}>{'\u00E1 ' + (item.hinta == null ? 'hinta puuttuu ' : item.hinta.toFixed(2)) + '\u20AC'}</Text>
+              </View>
+              <View style={{ padding: 2, marginRight: 10, marginTop: 30 }}>
+                <TouchableOpacity style={[{ width: 32, height: 32 }]} onPress={() => editViiniFunc(item)}>
+                  <Octicons name="pencil" size={24} color="black" />
+                </TouchableOpacity>
               </View>
             </View>
           
           </Pressable>
         ))}
-        {/* Modaali alkaa tästä */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={viiniTietoModal}
-          onRequestClose={() => {
+        {/* ViiniLisatiedot -komponentin kutsu */}
+        {viiniTietoModal ? (
+          <Modal
+            style={[styles.modalContainer]}
+            animationType="slide"
+            transparent={true}
+            visible={true}
+          >
+            <ViiniLisatiedot closeModal={closeLisatietoModal} passViiniId={viini.viiniId} />
 
-          }}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Viinin tarkemmat tiedot:</Text>
-                <View style={styles.modalInfo}>
-                    <Text style={styles.modalTextTitle}>{'Viini Id: '}</Text>
-                    <Text style={styles.modalText}>{ViiniId}</Text>
-                </View>
-                <View style={styles.modalInfo}>
-                    <Text style={styles.modalTextTitle}>{'Viinin nimi: '}</Text>
-                    <Text style={styles.modalText}>{ViiniNimi}</Text>
-                </View>
-                <View style={styles.modalInfo}>
-                    <Text style={styles.modalTextTitle}>{'Tyyppi Id: '}</Text>
-                    <Text style={styles.modalText}>{TyyppiId}</Text>
-                </View>
-                <View style={styles.modalInfo}>
-                    <Text style={styles.modalTextTitle}>{'Rypäle Id: '}</Text>
-                    <Text style={styles.modalText}>{RypaleId}</Text>
-                </View>
-                <View style={styles.modalInfo}>
-                    <Text style={styles.modalTextTitle}>{'Maa Id: '}</Text>
-                    <Text style={styles.modalText}>{MaaId}</Text>
-                </View>
+          </Modal>
+        ) : null }
+
+        {/* editViiniFunc -komponentin kutsu */}
+        {viiniEditModal ? (
+          <Modal
+            style={[styles.modalContainer]}
+            animationType="slide"
+            transparent={true}
+            visible={true}
+          >
+            <EditViini closeModal={closeEditModal} refreshAfterEdit={refreshJsonData} passViiniId={viini.viiniId} />
+
+          </Modal>
+        ) : null }
 
 
-              <TouchableHighlight 
-                style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-                onPress={() => {
-                  closeModal()
-                }}
-                >
-                  <Text style={styles.textStyle}>Sulje</Text>
-                </TouchableHighlight>
-            </View>
-          </View>
-        </Modal>
-        {/* Modaali loppuu tähän */}
 
       </ScrollView>
     </View>
