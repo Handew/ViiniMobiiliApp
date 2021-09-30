@@ -110,6 +110,7 @@ export default function Viinilista() {
           
           </Pressable>
         ))}
+        
         {/* ViiniLisatiedot -komponentin kutsu */}
         {viiniTietoModal ? (
           <Modal

@@ -43,12 +43,12 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-      width: 120,
-      height: 80,
+      width: 220,
+      height: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: 100,
+      borderRadius: 5,
       backgroundColor: '#ccc',
-      transform: [{ scaleX: 2 }],
+      // transform: [{ scaleX: 2 }],
   },
 });
