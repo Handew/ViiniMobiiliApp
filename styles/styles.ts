@@ -38,6 +38,10 @@ const styles = StyleSheet.create({
             borderTopWidth: 1,
             borderTopColor: '#ccc'
     },
+    scrollView: {
+        width: '100%',
+        marginVertical: 10,
+      },
 
     //Edit -tyylimääritykset
     inputContainer: {

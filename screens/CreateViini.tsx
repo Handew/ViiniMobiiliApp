@@ -20,8 +20,7 @@ interface ViinilistaInterface {
     // viivakoodi: string 
 }
 
-const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
-    let viiniId = passViiniId
+const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     const [viiniNimi, setViiniNimi] = useState('...')
     const [tyyppiId, setTyyppiId] = useState('0')
     const [rypaleId, setRypaleId] = useState('0')
@@ -32,32 +31,14 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
 
     let validaatio = true
 
-    useEffect(() => {
-      HaeViiniData()
-    }, [passViiniId])
 
-    const HaeViiniData = () => {
-      let uri = 'https://viinirestapi.azurewebsites.net/api/viini/' + passViiniId
-      fetch(uri)
-        .then(response => response.json())
-        .then((json: ViinilistaInterface) => {
-          setViiniNimi(json.viiniNimi)
-          setTyyppiId(json.tyyppiId.toString())
-          setRypaleId(json.rypaleId.toString())
-          setMaaId(json.maaId.toString())
-          setHinta(json.hinta.toString())
-          setTahdet(json.tahdet.toString())
-          setKommentti(json.kommentti)
-        })
-    }
-
-    async function editViinionPress (viiniNimi: string) {
+    async function createViinionPress (viiniNimi: string) {
         if (Platform.OS === 'web') {
             if (validaatio == false) {
-                alert('Viiniä ' + viiniNimi + ' c')
+                alert('Viiniä ' + viiniNimi + ' ei voi tallentaa tietojen puutteellisuuden vuoksi!')
             } else {
-                await PutToDB()
-                console.log('Viiniä ' + viiniNimi + ' muokattu onnistuneesti')
+                await PostToDB()
+                console.log('Viini ' + viiniNimi + ' lisätty onnistuneesti')
                 refreshAfterEdit(true)
                 closeModal()
             }
@@ -66,15 +47,15 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
             if (validaatio == false) {
                 alert('Viiniä ' + viiniNimi + ' ei voi tallentaa tietojen puutteellisuuden vuoksi!')
             } else {
-                await PutToDB()
-                alert('Viiniä ' + viiniNimi + ' muokattu onnistuneesti!')
+                await PostToDB()
+                alert('Viini ' + viiniNimi + ' lisätty onnistuneesti!')
                 refreshAfterEdit(true)
                 closeModal()
             }
         }
     }
 
-    const PutToDB = () => {
+    const PostToDB = () => {
         const viini = 
         {
           ViiniNimi: viiniNimi,
@@ -89,16 +70,16 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
         }
     
   
-      const viiniEditJson = JSON.stringify(viini)
+      const viiniCreateJson = JSON.stringify(viini)
   
-      const apiUrl = "https://viinirestapi.azurewebsites.net/api/viini/" + viiniId
+      const apiUrl = "https://viinirestapi.azurewebsites.net/api/viini/"
       fetch(apiUrl, {
-          method:"PUT",
+          method:"POST",
           headers: {
               "Accept": "application/json",
               "Content-type": "application/json; charset=utf-8"
           },
-          body: viiniEditJson  //lähetetään html-dobyssä konvertoitu data...
+          body: viiniCreateJson  //lähetetään html-dobyssä konvertoitu data...
           })
               .then((response) => response.json())
               .then((json) => {
@@ -116,9 +97,9 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
     return (
         <View style={styles.inputContainer}>
             <ScrollView>
-                <View key={viiniId}>
+                <View>
                     <View style={styles.topSection}>
-                        <Pressable onPress={() => editViinionPress(viiniNimi)}>
+                        <Pressable onPress={() => createViinionPress(viiniNimi)}>
                             <View><Octicons name="check" size={24} color="green" /></View> 
                         </Pressable>
                     
@@ -127,20 +108,12 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         </Pressable>
                     </View>
 
-                    <Text style={styles.inputHeaderTitle}>Tuotteen muokkaus:</Text>
-                    <Text style={styles.inputTitle}>ID:</Text>
-                    <TextInput style={styles.inputTitle}
-                        underlineColorAndroid="transparent"
-                        defaultValue={viiniId.toString()}
-                        autoCapitalize="none"
-                        editable={false}
-                    />
+                    <Text style={styles.inputHeaderTitle}>Viinin lisäys:</Text>
 
                     <Text style={styles.inputTitle}>Nimi:</Text>
                     <TextInput style={styles.editInput} 
                         underlineColorAndroid="transparent"
                         onChangeText={val => setViiniNimi(val)}
-                        value={viiniNimi.toString()}
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         selectTextOnFocus={true}
@@ -152,7 +125,6 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setHinta(val)}
-                        value={(hinta.toString() == null ? '0' : hinta.toString())}
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         keyboardType='numeric'
@@ -164,7 +136,6 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setTyyppiId((val))}
-                        value={tyyppiId.toString()}
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         keyboardType='numeric'
@@ -176,7 +147,6 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setRypaleId(val)}
-                        value={rypaleId.toString()}
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         keyboardType='numeric'
@@ -187,23 +157,21 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setMaaId(val)}
-                        value={maaId.toString()}
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
 
-                    <Text style={styles.inputTitle}>Hinta:</Text>
+                    {/* <Text style={styles.inputTitle}>Hinta:</Text>
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setHinta(val)}
-                        value={hinta.toString() == null ? '0' : hinta.toString()}
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         keyboardType='numeric'
                         selectTextOnFocus={true}
-                    />
+                    /> */}
                     
                     {/* <Text style={styles.inputTitle}>Hinta:</Text>
                     <Picker
@@ -218,7 +186,6 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setKommentti(val)}
-                        value={kommentti.toString()}
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         selectTextOnFocus={true}
@@ -233,10 +200,15 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         {suppliersList}
                     </Picker> */}
 
+                    <Pressable style={styles.submitButton}
+                    onPress={() => createViinionPress(viiniNimi)}>
+                        <Text style={styles.submitButtonText}>{' Lisää viini '}</Text>
+                    </Pressable>
+
             </View>
         </ScrollView>
     </View>
 
     )
 }
-export default EditViini
+export default CreateViini
