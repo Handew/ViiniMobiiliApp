@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
       },
 
-    //Edit -tyylimääritykset
+    //Edit, Create, Delete -tyylimääritykset
     inputContainer: {
         flex: 1,
         justifyContent: "space-between",
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     editInput: {
+        marginTop: 10,
         marginLeft: 10,
         marginRight: 10,
         height: 40,

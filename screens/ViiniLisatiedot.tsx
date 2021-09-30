@@ -6,7 +6,7 @@ import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/
 import styles from '../styles/styles'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-interface ViinilistaInterface {
+interface IViinilista {
     viiniId: number
     viiniNimi: string
     tyyppiId: number
@@ -20,7 +20,7 @@ interface ViinilistaInterface {
 }
 
 const ViiniLisatiedot = ({ passViiniId, closeModal }:any) => {
-    const [viini, setViini] = useState<Partial<ViinilistaInterface>>({})
+    const [viini, setViini] = useState<Partial<IViinilista>>({})
     const [viiniId, setViiniId] = useState(passViiniId)
 
     useEffect(() => {
@@ -31,7 +31,7 @@ const ViiniLisatiedot = ({ passViiniId, closeModal }:any) => {
       let uri = 'https://viinirestapi.azurewebsites.net/api/viini/' + viiniId
       fetch(uri)
         .then(response => response.json())
-        .then((json: ViinilistaInterface) => {
+        .then((json: IViinilista) => {
           setViini(json)
         })
     }
@@ -49,6 +49,10 @@ const ViiniLisatiedot = ({ passViiniId, closeModal }:any) => {
                 <Text style={styles.modalText}>{viini.viiniNimi}</Text>
             </View>
             <View style={styles.modalInfo}>
+                <Text style={styles.modalTextTitle}>{'Tähdet: '}</Text>
+                <Text style={styles.modalText}>{viini.tahdet}</Text>
+            </View>
+            <View style={styles.modalInfo}>
                 <Text style={styles.modalTextTitle}>{'Tyyppi Id: '}</Text>
                 <Text style={styles.modalText}>{viini.tyyppiId}</Text>
             </View>
@@ -64,10 +68,7 @@ const ViiniLisatiedot = ({ passViiniId, closeModal }:any) => {
                 <Text style={styles.modalTextTitle}>{'Kommentti: '}</Text>
                 <Text style={styles.modalText}>{viini.kommentti}</Text>
             </View>
-            <View style={styles.modalInfo}>
-                <Text style={styles.modalTextTitle}>{'Tähdet: '}</Text>
-                <Text style={styles.modalText}>{viini.tahdet}</Text>
-            </View>
+
 
 
           <TouchableHighlight 

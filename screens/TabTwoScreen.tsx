@@ -22,7 +22,7 @@ import CreateViini from "./CreateViini";
 import DeleteViini from "./DeleteViini";
 import { Picker } from "@react-native-picker/picker";
 
-interface ViinilistaInterface {
+interface IViinilista {
   viiniId: number;
   viiniNimi: string;
   tyyppiId: number;
@@ -35,35 +35,67 @@ interface ViinilistaInterface {
   // Viivakoodi: string
 }
 
+//Filtteriä
+interface ITyypit {
+  tyyppiId: number
+  tyyppi1: string
+}
+
 export default function Viinilista() {
-  const [viini, setViini] = useState<Partial<ViinilistaInterface>>({});
+  const [viini, setViini] = useState<Partial<IViinilista>>({});
   const [tallennetutViinit, setTallennetutViinit] = useState<any>([]);
   const [tallennetutViinitYhteensä, setTallennetutViinitYhteensä] = useState(0);
   const [viiniTietoModal, setViiniTietoModal] = useState(false);
   const [viiniEditModal, setViiniEditModal] = useState(false);
-  const [viiniCreateModal, setViiniCreateModal] = useState(false)
-  const [viiniDeleteModal, setViiniDeleteModal] = useState(false)
+  const [viiniCreateModal, setViiniCreateModal] = useState(false);
+  const [viiniDeleteModal, setViiniDeleteModal] = useState(false);
+  //FILTER
+  const [tyypit, setTyypit] = useState<any>([])
+  const [valittuTyyppi, setValittuTyyppi] = useState<any>("All")
   //Tuotelistan päivityksen muuttujat
   const [refreshViinit, setRefreshViinit] = useState(false);
   const [refreshIndicator, setRefreshIndicator] = useState(false);
-  //Picker
-  const [dropdownTyyppi, setDropdownTyyppi] = useState('All')
 
   useEffect(() => {
+    HaeTyypit()
     HaeViinit();
   }, [refreshViinit]);
+
+  const tyyppiLista = tyypit.map((tyyp: ITyypit, index: any) => {
+    return(
+      <Picker.Item label={tyyp.tyyppi1} value={tyyp.tyyppiId} key={index} />
+    )
+  })
 
   const HaeViinit = () => {
     let uri = "https://viinirestapi.azurewebsites.net/api/viini/";
     fetch(uri)
       .then((response) => response.json())
-      .then((json: ViinilistaInterface) => {
-        setTallennetutViinit(json);
-        const fetchCount = Object.keys(json).length;
-        setTallennetutViinitYhteensä(fetchCount);
+      .then((json: IViinilista[]) => {
+        if (valittuTyyppi === "All") {
+          setTallennetutViinit(json);
+          const fetchCount = Object.keys(json).length;
+          setTallennetutViinitYhteensä(fetchCount);
+        }
+        else {
+          const filtered = json.filter(x => x.tyyppiId === parseInt(valittuTyyppi))
+          setTallennetutViinit(filtered)
+          const fetchCount = Object.keys(filtered).length;
+          setTallennetutViinitYhteensä(fetchCount);
+        }
       });
     setRefreshIndicator(false);
   };
+
+  const HaeTyypit = () => {
+    let uri = "https://viinirestapi.azurewebsites.net/api/viini/gettyyppi";
+    fetch(uri)
+      .then((response) => response.json())
+      .then((json: ITyypit) => {
+        setTyypit(json);
+      });
+    setRefreshIndicator(false);
+  }
 
   const refreshJsonData = () => {
     setRefreshViinit(!refreshViinit);
@@ -71,7 +103,7 @@ export default function Viinilista() {
   };
 
   //Viinin muokkaus
-  const editViiniFunc = (item: ViinilistaInterface) => {
+  const editViiniFunc = (item: IViinilista) => {
     setViini(item); // Asettaa Viini -hooks-objektiin klikatun tuotteen koko objektin
     setViiniEditModal(true); //Edit ikkuna esiin
   };
@@ -82,7 +114,7 @@ export default function Viinilista() {
   };
 
   //Viinin poisto
-  const deleteViiniFunc = (item: ViinilistaInterface) => {
+  const deleteViiniFunc = (item: IViinilista) => {
     setViini(item); // Asettaa Viini -hooks-objektiin klikatun tuotteen koko objektin
     setViiniDeleteModal(true); //Delete ikkuna esiin
   };
@@ -97,22 +129,17 @@ export default function Viinilista() {
   };
 
   const closeCreateModal = () => {
-    setViiniCreateModal(!viiniCreateModal)
-  }
+    setViiniCreateModal(!viiniCreateModal);
+  };
 
   const closeDeleteModal = () => {
     setViiniDeleteModal(!viiniDeleteModal);
   };
 
-  const filterItems = (tyyppi: string)  => {
-    if (tyyppi === 'All') {
-      setDropdownTyyppi('All')
-      setRefreshViinit(!refreshViinit)
-    }
-    else if (tyyppi === 'cat1') {
-      setDropdownTyyppi('cat1')
-      setRefreshViinit(!refreshViinit)
-    }
+  //Filteröintiin
+  const fetchFiltered = (value: any) => {
+    setValittuTyyppi(value)
+    setRefreshViinit(!refreshViinit)
   }
 
   return (
@@ -146,33 +173,51 @@ export default function Viinilista() {
         </Pressable>
       </View>
       <View style={styles.pickerSection}>
-          <Picker selectedValue={dropdownTyyppi} 
-            style={{ height: 50, width: 250 }} 
-            prompt='Valitse viinityyppi'
-            onValueChange={(itemValue, itemIndex) =>
-            filterItems(itemValue.toString())
-            }>
-              <Picker.Item label='Hae kaikki viinit' value='All' />
-              <Picker.Item label='Punaviinit' value='cat1' />
-          </Picker>
-        </View>
+        <Picker
+          prompt="Valitse viinityyppi"
+          selectedValue={valittuTyyppi}
+          style={{ height: 50, width: 250 }}
+          onValueChange={(value) => fetchFiltered(value)}
+        >
+          <Picker.Item label="Hae kaikki viinit" value="All" />
+          {tyyppiLista}
+        </Picker>
+      </View>
 
       <ScrollView>
-        {tallennetutViinit.map((item: ViinilistaInterface) => (
+        {tallennetutViinit.map((item: IViinilista) => (
           <Pressable
             key={item.viiniId}
             onPress={() => {
               setViini(item);
               setViiniTietoModal(true);
             }}
-            style={({ pressed }) => [{ backgroundColor: pressed ? "rgba(49, 179, 192, 0.5)" : "white" }]}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? "rgba(49, 179, 192, 0.5)" : "white",
+              },
+            ]}
           >
             <View style={styles.wineContainer}>
-              <Image source={item.Kuva ? { uri: item.Kuva } : { uri: 'https://www.tibs.org.tw/images/default.jpg' }} 
-                style={[styles.centerSection, { height: 60, width: 60, backgroundColor: '#eeeeee', margin: 6, }]} />
-              <View style={{ flexGrow: 1, flexShrink: 1, alignSelf: 'center' }}>
+              <Image
+                source={
+                  item.Kuva
+                    ? { uri: item.Kuva }
+                    : { uri: "https://www.tibs.org.tw/images/default.jpg" }
+                }
+                style={[
+                  styles.centerSection,
+                  {
+                    height: 60,
+                    width: 60,
+                    backgroundColor: "#eeeeee",
+                    margin: 6,
+                  },
+                ]}
+              />
+              <View style={{ flexGrow: 1, flexShrink: 1, alignSelf: "center" }}>
                 <Text style={{ fontSize: 15 }}>{item.viiniNimi}</Text>
-                <Text style={{ color: '#8f8f8f' }}>
+                <Text style={{ color: "#8f8f8f" }}>
                   {"RypäleId " + item.rypaleId}
                 </Text>
                 <Text style={{ color: "#333333", marginBottom: 10 }}>
@@ -190,8 +235,8 @@ export default function Viinilista() {
                 >
                   <Octicons name="pencil" size={24} color="black" />
                 </Pressable>
-                <Pressable 
-                  style={[{ width: 32, height: 32}]} 
+                <Pressable
+                  style={[{ width: 32, height: 32 }]}
                   onPress={() => deleteViiniFunc(item)}
                 >
                   <Octicons name="trashcan" size={24} color="black" />
@@ -262,7 +307,6 @@ export default function Viinilista() {
             />
           </Modal>
         ) : null}
-
       </ScrollView>
     </View>
   );

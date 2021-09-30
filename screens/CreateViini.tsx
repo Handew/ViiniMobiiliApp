@@ -7,17 +7,20 @@ import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/
 import styles from '../styles/styles'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-interface ViinilistaInterface {
-    viiniId: number
-    viiniNimi: string
+//Filtteriä
+interface ITyypit {
     tyyppiId: number
-    rypaleId: number
+    tyyppi1: string
+}
+
+interface IMaat {
     maaId: number
-    hinta: number
-    tahdet: number
-    kommentti: string
-    // kuva: 
-    // viivakoodi: string 
+    maa1: string
+}
+
+interface IRypaleet {
+    rypaleId: number
+    rypale1: string
 }
 
 const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
@@ -28,6 +31,67 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     const [hinta, setHinta] = useState('0')
     const [tahdet, setTahdet] = useState('0')
     const [kommentti, setKommentti] = useState('...')
+    //FILTER
+    const [tyypit, setTyypit] = useState<any>([])
+    const [valittuTyyppi, setValittuTyyppi] = useState<any>("All")
+
+    const [maat, setMaat] = useState<any>([])
+    const [valittuMaa, setValittuMaa] = useState<any>("All")
+
+    const [rypaleet, setRypaleet] = useState<any>([])
+    const [valittuRypale, setValittuRypale] = useState<any>("All")
+
+    const tyyppiLista = tyypit.map((tyyp: ITyypit, index: any) => {
+        return(
+          <Picker.Item label={tyyp.tyyppi1} value={tyyp.tyyppiId} key={index} />
+        )
+    })
+
+    const maaLista = maat.map((maa: IMaat, index: any) => {
+        return(
+          <Picker.Item label={maa.maa1} value={maa.maaId} key={index} />
+        )
+    })
+    
+    const rypaleLista = rypaleet.map((ryp: IRypaleet, index: any) => {
+        return(
+          <Picker.Item label={ryp.rypale1} value={ryp.rypaleId} key={index} />
+        )
+    })
+
+    useEffect(() => {
+        HaeTyypit()
+        HaeRypaleet()
+        HaeMaat()
+    }, [])
+
+    const HaeTyypit = () => {
+        let uri = "https://viinirestapi.azurewebsites.net/api/viini/gettyyppi";
+        fetch(uri)
+          .then((response) => response.json())
+          .then((json: ITyypit) => {
+            setTyypit(json);
+          });
+    }
+
+    const HaeRypaleet = () => {
+        let uri = "https://viinirestapi.azurewebsites.net/api/viini/getrypaleet";
+        fetch(uri)
+          .then((response) => response.json())
+          .then((json: IRypaleet) => {
+            setRypaleet(json);
+          });
+    }
+
+    const HaeMaat = () => {
+        let uri = "https://viinirestapi.azurewebsites.net/api/viini/getmaat";
+        fetch(uri)
+          .then((response) => response.json())
+          .then((json: IMaat) => {
+            setMaat(json);
+          });
+    }
+
 
     let validaatio = true
 
@@ -70,29 +134,45 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
         }
     
   
-      const viiniCreateJson = JSON.stringify(viini)
-  
-      const apiUrl = "https://viinirestapi.azurewebsites.net/api/viini/"
-      fetch(apiUrl, {
-          method:"POST",
-          headers: {
-              "Accept": "application/json",
-              "Content-type": "application/json; charset=utf-8"
-          },
-          body: viiniCreateJson  //lähetetään html-dobyssä konvertoitu data...
-          })
-              .then((response) => response.json())
-              .then((json) => {
-                  const success = json
-                  if (success) {
-                      console.log(success)
-                  } 
-                  else 
-                  {
-                      console.log('Ongelmia päivityksessä ' + viiniNimi)
-                  }
-              })
-      }
+    const viiniCreateJson = JSON.stringify(viini)
+
+    const apiUrl = "https://viinirestapi.azurewebsites.net/api/viini/"
+    fetch(apiUrl, {
+        method:"POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-type": "application/json; charset=utf-8"
+        },
+        body: viiniCreateJson  //lähetetään html-dobyssä konvertoitu data...
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                const success = json
+                if (success) {
+                    console.log(success)
+                } 
+                else 
+                {
+                    console.log('Ongelmia päivityksessä ' + viiniNimi)
+                }
+            })
+    }
+
+    //Filteröintiin
+    const fetchFilteredTyyppi = (value: any) => {
+        setValittuTyyppi(value)
+        setTyyppiId(value)
+    }
+
+    const fetchFilteredRypale = (value: any) => {
+        setValittuRypale(value)
+        setRypaleId(value)
+    }
+
+    const fetchFilteredMaa = (value: any) => {
+        setValittuMaa(value)
+        setMaaId(value)
+    }
 
     return (
         <View style={styles.inputContainer}>
@@ -110,10 +190,11 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
 
                     <Text style={styles.inputHeaderTitle}>Viinin lisäys:</Text>
 
-                    <Text style={styles.inputTitle}>Nimi:</Text>
+                    {/* <Text style={styles.inputTitle}>Nimi:</Text> */}
                     <TextInput style={styles.editInput} 
                         underlineColorAndroid="transparent"
                         onChangeText={val => setViiniNimi(val)}
+                        placeholder="Anna viinin nimi"
                         placeholderTextColor="#9a73ef"
                         autoCapitalize="none"
                         selectTextOnFocus={true}
@@ -121,84 +202,64 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                     />
                     {/* { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )} */}
         
-                    <Text style={styles.inputTitle}>Hinta:</Text>
+                    <TextInput style={styles.editInput}
+                        underlineColorAndroid="transparent"
+                        onChangeText={val => setTahdet(val)}
+                        placeholderTextColor="#9a73ef"
+                        placeholder="Anna tuotteen tähdet"
+                        autoCapitalize="none"
+                        keyboardType='numeric'
+                        selectTextOnFocus={true}
+                    />
+
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setHinta(val)}
                         placeholderTextColor="#9a73ef"
+                        placeholder="Anna viinin hinta"
                         autoCapitalize="none"
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
                     {/* { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )} */}
 
-                    <Text style={styles.inputTitle}>Tyyppi Id:</Text>
-                    <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setTyyppiId((val))}
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    />
+                    <Picker
+                        selectedValue={valittuTyyppi}
+                        style={{height:50,width:250}}
+                        onValueChange={(value) => fetchFilteredTyyppi(value)}>
+                        <Picker.Item label="Valitse viinin tyyppi" />
+                        {tyyppiLista}
+                    </Picker>
+
                     {/* { validateNumeric(tyyppiId) == true ? null : ( <Text style={styles.validationError}>Anna varastomääräksi numero</Text> )} */}
 
-                    <Text style={styles.inputTitle}>Rypäle ID:</Text>
-                    <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setRypaleId(val)}
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    />
-
-                    <Text style={styles.inputTitle}>Maa ID:</Text>
-                    <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setMaaId(val)}
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    />
-
-                    {/* <Text style={styles.inputTitle}>Hinta:</Text>
-                    <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setHinta(val)}
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    /> */}
-                    
-                    {/* <Text style={styles.inputTitle}>Hinta:</Text>
+                    {/* <Text style={styles.inputTitle}>Rypälelajike:</Text> */}
                     <Picker
-                        selectedValue={selectedCat}
+                        selectedValue={valittuRypale}
                         style={{height:50,width:250}}
-                        onValueChange={(itemValue) => fetchFiltered(itemValue)}>
-                        <Picker.Item label={"ID: " + categoryId + " - " + categories.categoryName} />
-                        {categoriesList}
-                    </Picker> */}
+                        onValueChange={(value) => fetchFilteredRypale(value)}>
+                        <Picker.Item label="Valitse rypälelajike" />
+                        {rypaleLista}
+                    </Picker>
 
-                    <Text style={styles.inputTitle}>Kommentti:</Text>
+                    {/* <Text style={styles.inputTitle}>Viinin tuottaja maa:</Text> */}
+                    <Picker
+                        selectedValue={valittuMaa}
+                        style={{height:50,width:250}}
+                        onValueChange={(value) => fetchFilteredMaa(value)}>
+                        <Picker.Item label="Valitse viinin tuottaja maa" />
+                        {maaLista}
+                    </Picker>
+
+                    {/* <Text style={styles.inputTitle}>Kommentti:</Text> */}
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setKommentti(val)}
                         placeholderTextColor="#9a73ef"
+                        placeholder="Anna kommentti"
                         autoCapitalize="none"
                         selectTextOnFocus={true}
                     />
-
-                    {/* <Text style={styles.inputTitle}>Tavarantoimittaja:</Text>
-                    <Picker
-                        selectedValue={selectedSupp}
-                        style={{height:50,width:250}}
-                        onValueChange={(itemValue) => fetchFilteredSupp(itemValue)}>
-                        <Picker.Item label={"ID: " + supplierId + " - " + suppliers.companyName} />
-                        {suppliersList}
-                    </Picker> */}
 
                     <Pressable style={styles.submitButton}
                     onPress={() => createViinionPress(viiniNimi)}>
