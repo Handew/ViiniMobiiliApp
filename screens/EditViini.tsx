@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
 import { Platform, StyleSheet, Text, View, ScrollView, Pressable, TouchableHighlight, TextInput, Switch  } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
+import { Rating } from 'react-native-ratings';
 import { FontAwesome5, Octicons } from '@expo/vector-icons';
 import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/components/GestureHandlerButton';
 import styles from '../styles/styles'
@@ -18,9 +19,6 @@ interface IViinilista {
     kommentti: string
     // kuva: 
     // viivakoodi: string 
-    tyyppi: string
-    maa: string
-    rypale: string
 }
 
 //Filtteriä
@@ -45,7 +43,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
     const [viiniNimi, setViiniNimi] = useState('...')
     const [tyyppiId, setTyyppiId] = useState('0')
     const [rypaleId, setRypaleId] = useState('0')
-    const [maaId, setMaaId] = useState('0')
+    const [maaId, setMaaId] = useState(0)
     const [hinta, setHinta] = useState('0')
     const [tahdet, setTahdet] = useState('0')
     const [kommentti, setKommentti] = useState('...')
@@ -55,6 +53,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
 
     const [maat, setMaat] = useState<any>([])
     const [valittuMaa, setValittuMaa] = useState<any>("All")
+    const [maa, setMaa] = useState({})
 
     const [rypaleet, setRypaleet] = useState<any>([])
     const [valittuRypale, setValittuRypale] = useState<any>("All")
@@ -94,7 +93,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
           setViiniNimi(json.viiniNimi)
           setTyyppiId(json.tyyppiId.toString())
           setRypaleId(json.rypaleId.toString())
-          setMaaId(json.maaId.toString())
+          setMaaId(json.maaId)
           setHinta(json.hinta.toString())
           setTahdet(json.tahdet.toString())
           setKommentti(json.kommentti)
@@ -123,10 +122,10 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
         let uri = "https://viinirestapi.azurewebsites.net/api/viini/getmaat";
         fetch(uri)
           .then((response) => response.json())
-          .then((json: IMaat) => {
+          .then((json) => {
             setMaat(json);
           });
-      }
+    }
 
 
     async function editViinionPress (viiniNimi: string) {
@@ -202,7 +201,10 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
         setRypaleId(value)
     }
 
+
+
     const fetchFilteredMaa = (value: any) => {
+        console.log(maat)
         setValittuMaa(value)
         setMaaId(value)
     }
@@ -221,24 +223,27 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         </Pressable>
                     </View>
 
-                    <Text style={styles.inputHeaderTitle}>Tuotteen muokkaus:</Text>
-                    <Text style={styles.inputTitle}>ID:</Text>
-                    <TextInput style={styles.inputTitle}
-                        underlineColorAndroid="transparent"
-                        defaultValue={viiniId.toString()}
-                        autoCapitalize="none"
-                        editable={false}
-                    />
+                    {/* <Text style={styles.inputHeaderTitle}>Viinin muokkaus:</Text> */}
 
-                    <Text style={styles.inputTitle}>Nimi:</Text>
+                    
+                    <Rating
+                        showRating
+                        type="star"
+                        fractions={1}
+                        startingValue={Number(tahdet)}
+                        onFinishRating={setTahdet}
+                    >
+
+                    </Rating>
+
+                    <Text style={styles.inputTitle}>Viinin nimi:</Text>
                     <TextInput style={styles.editInput} 
                         underlineColorAndroid="transparent"
                         onChangeText={val => setViiniNimi(val)}
                         value={viiniNimi.toString()}
-                        placeholderTextColor="#9a73ef"
+                        placeholderTextColor="#bdbbb7"
                         autoCapitalize="none"
                         selectTextOnFocus={true}
-                        
                     />
                     {/* { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )} */}
         
@@ -247,7 +252,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         underlineColorAndroid="transparent"
                         onChangeText={val => setHinta(val)}
                         value={(hinta.toString() == null ? '0' : hinta.toString())}
-                        placeholderTextColor="#9a73ef"
+                        placeholderTextColor="#bdbbb7"
                         autoCapitalize="none"
                         keyboardType='numeric'
                         selectTextOnFocus={true}
@@ -318,6 +323,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         onValueChange={(value) => fetchFilteredMaa(value)}
                     >
                         <Picker.Item label={"ID: " + maaId + " - " + maat.maa1} />
+                    
                         {maaLista}
 
                     </Picker>
@@ -327,7 +333,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         underlineColorAndroid="transparent"
                         onChangeText={val => setKommentti(val)}
                         value={kommentti.toString()}
-                        placeholderTextColor="#9a73ef"
+                        placeholderTextColor="#bdbbb7"
                         autoCapitalize="none"
                         selectTextOnFocus={true}
                     />

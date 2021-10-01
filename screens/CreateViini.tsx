@@ -1,11 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { Platform, StyleSheet, Text, View, ScrollView, Pressable, TouchableHighlight, TextInput, Switch  } from 'react-native';
+import { Platform, Image, StyleSheet, Text, View, ScrollView, Pressable, TouchableHighlight, TextInput, Switch } from 'react-native';
+import { Rating } from 'react-native-ratings';
 import {Picker} from '@react-native-picker/picker';
 import { FontAwesome5, Octicons } from '@expo/vector-icons';
 import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/components/GestureHandlerButton';
 import styles from '../styles/styles'
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Camera} from 'expo-camera'
 
 //Filtteriä
 interface ITyypit {
@@ -31,6 +33,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     const [hinta, setHinta] = useState('0')
     const [tahdet, setTahdet] = useState('0')
     const [kommentti, setKommentti] = useState('...')
+    const [kuva, setKuva] = useState()
     //FILTER
     const [tyypit, setTyypit] = useState<any>([])
     const [valittuTyyppi, setValittuTyyppi] = useState<any>("All")
@@ -40,6 +43,13 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
 
     const [rypaleet, setRypaleet] = useState<any>([])
     const [valittuRypale, setValittuRypale] = useState<any>("All")
+
+    //CAMERA
+    const [startCamera, setStartCamera] = useState(false)
+
+    const __startCamera = () => {
+
+    }
 
     const tyyppiLista = tyypit.map((tyyp: ITyypit, index: any) => {
         return(
@@ -64,6 +74,8 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
         HaeRypaleet()
         HaeMaat()
     }, [])
+
+
 
     const HaeTyypit = () => {
         let uri = "https://viinirestapi.azurewebsites.net/api/viini/gettyyppi";
@@ -174,49 +186,83 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
         setMaaId(value)
     }
 
+
     return (
         <View style={styles.inputContainer}>
             <ScrollView>
                 <View>
                     <View style={styles.topSection}>
                         <Pressable onPress={() => createViinionPress(viiniNimi)}>
-                            <View><Octicons name="check" size={24} color="green" /></View> 
+                            <View><FontAwesome5 name="check" size={24} color="green" /></View> 
+                        </Pressable>
+
+                        <Pressable onPress={__startCamera}>
+                            <View><FontAwesome5 name="camera" size={28} color="black" /></View> 
                         </Pressable>
                     
                         <Pressable onPress={() => closeModal()}>
-                            <View><Octicons name="x" size={24} color="black" /></View>
+                            <View><FontAwesome5 name="times" size={24} color="black" /></View>
                         </Pressable>
                     </View>
 
-                    <Text style={styles.inputHeaderTitle}>Viinin lisäys:</Text>
+                    {/* <Text style={styles.inputHeaderTitle}>Viinin lisäys:</Text> */}
+
+                    <View style={styles.centerSection}>
+                        <Image
+                            source={{uri: "https://www.tibs.org.tw/images/default.jpg"}}
+                            style={[
+                            styles.centerSection,
+                            {
+                                
+                                height: 250,
+                                width: 250,
+                                backgroundColor: "#eeeeee",
+                                margin: 6,
+                            },
+                            ]}
+                        />
+                    </View>
+
+
+                    <Rating
+                        showRating
+                        type="star"
+                        fractions={1}
+                        startingValue={0}
+                        onFinishRating={setTahdet}
+                    >
+
+                    </Rating>
 
                     {/* <Text style={styles.inputTitle}>Nimi:</Text> */}
                     <TextInput style={styles.editInput} 
                         underlineColorAndroid="transparent"
                         onChangeText={val => setViiniNimi(val)}
-                        placeholder="Anna viinin nimi"
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
+                        placeholder="Viinin nimi"
+                        placeholderTextColor="#bdbbb7"
+                        autoCapitalize="sentences"
                         selectTextOnFocus={true}
                         
                     />
                     {/* { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )} */}
-        
-                    <TextInput style={styles.editInput}
+
+                    
+
+                    {/* <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setTahdet(val)}
-                        placeholderTextColor="#9a73ef"
+                        placeholderTextColor="#bdbbb7"
                         placeholder="Anna tuotteen tähdet"
                         autoCapitalize="none"
                         keyboardType='numeric'
                         selectTextOnFocus={true}
-                    />
+                    /> */}
 
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         onChangeText={val => setHinta(val)}
-                        placeholderTextColor="#9a73ef"
-                        placeholder="Anna viinin hinta"
+                        placeholderTextColor="#bdbbb7"
+                        placeholder="Viinin hinta"
                         autoCapitalize="none"
                         keyboardType='numeric'
                         selectTextOnFocus={true}
@@ -254,9 +300,11 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                     {/* <Text style={styles.inputTitle}>Kommentti:</Text> */}
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
+                        multiline
+                        numberOfLines={4}
                         onChangeText={val => setKommentti(val)}
-                        placeholderTextColor="#9a73ef"
-                        placeholder="Anna kommentti"
+                        placeholderTextColor="#bdbbb7"
+                        placeholder="Kommentti"
                         autoCapitalize="none"
                         selectTextOnFocus={true}
                     />

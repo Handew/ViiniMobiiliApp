@@ -12,7 +12,7 @@ import {
   TouchableHighlight,
   ActivityIndicator,
 } from "react-native";
-import { FontAwesome5, Octicons } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
 import RNGestureHandlerButton from "react-native-gesture-handler/lib/typescript/components/GestureHandlerButton";
 import styles from "../styles/styles";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -146,7 +146,7 @@ export default function Viinilista() {
     <View style={styles.mainWrapper}>
       <View style={styles.topSection}>
         <View>
-          <FontAwesome5 name="wine-glass" size={25} color="#000" />
+          <FontAwesome5 name="wine-bottle" size={25} color="#07910e" />
         </View>
         <Text style={{ fontSize: 18, color: "#000" }}>
           {"Viinejä yhteensä: " + tallennetutViinitYhteensä}
@@ -158,7 +158,7 @@ export default function Viinilista() {
           ]}
         >
           <View>
-            <Octicons name="sync" size={24} color="black" />
+            <FontAwesome5 name="sync" size={23} color="black" />
           </View>
         </Pressable>
         <ActivityIndicator
@@ -168,7 +168,7 @@ export default function Viinilista() {
         />
         <Pressable onPress={() => createViiniFunc()}>
           <View>
-            <Octicons name="plus" size={24} color="green" />
+            <FontAwesome5 name="plus" size={25} color="green" />
           </View>
         </Pressable>
       </View>
@@ -228,18 +228,18 @@ export default function Viinilista() {
                     "\u20AC"}
                 </Text>
               </View>
-              <View style={{ padding: 2, marginRight: 10, marginTop: 30 }}>
+              <View style={{ padding: 2, marginRight: 10 }}>
                 <Pressable
                   style={[{ width: 32, height: 32 }]}
                   onPress={() => editViiniFunc(item)}
                 >
-                  <Octicons name="pencil" size={24} color="black" />
+                  <FontAwesome5 name="edit" size={25} color="#000" />
                 </Pressable>
                 <Pressable
                   style={[{ width: 32, height: 32 }]}
                   onPress={() => deleteViiniFunc(item)}
                 >
-                  <Octicons name="trashcan" size={24} color="black" />
+                  <FontAwesome5 name="trash-alt" size={25} color="red"  />
                 </Pressable>
               </View>
             </View>

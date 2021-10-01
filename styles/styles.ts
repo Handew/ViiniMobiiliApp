@@ -77,10 +77,12 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 10,
         height: 40,
-        borderColor: '#3AC730',
-        borderWidth: 1,
+        borderBottomColor: '#3AC730',
+        // borderColor: '#3AC730',
+        borderBottomWidth: 1,
+        // borderWidth: 1,
         padding: 5,
-        color: 'saddlebrown',
+        color: '#6b6565',
     },
     inactiveField: {
         marginLeft: 10,
@@ -97,9 +99,11 @@ const styles = StyleSheet.create({
         padding: 10,
         margin: 15,
         height: 40,
+        borderRadius: 10
     },
     submitButtonText: {
-        color: 'white'
+        color: 'white',
+        textAlign: 'center'
     },
 
     validationError: {
