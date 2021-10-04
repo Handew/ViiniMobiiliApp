@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { Platform, StyleSheet, Text, View, ScrollView, Pressable, TouchableHighlight, TextInput, Switch  } from 'react-native';
+import { Platform, StyleSheet, Image, Text, View, ScrollView, Pressable, TouchableHighlight, TextInput, Switch  } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { Rating } from 'react-native-ratings';
 import { FontAwesome5, Octicons } from '@expo/vector-icons';
@@ -17,7 +17,7 @@ interface IViinilista {
     hinta: number
     tahdet: number
     kommentti: string
-    // kuva: 
+    kuva: string
     // viivakoodi: string
 
 }
@@ -48,6 +48,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
     const [hinta, setHinta] = useState(0.00)
     const [tahdet, setTahdet] = useState(0.0)
     const [kommentti, setKommentti] = useState('...')
+    const [kuva, setKuva] = useState('')
     //FILTER
     const [tyypit, setTyypit] = useState<any>([])
     const [maat, setMaat] = useState<any>([])
@@ -93,6 +94,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
           setHinta(json.hinta)
           setTahdet(json.tahdet)
           setKommentti(json.kommentti)
+          setKuva(json.kuva)
         })
     }
 
@@ -157,7 +159,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
           Hinta: parseFloat(Number(hinta).toFixed(2)),
           Tahdet: Number(tahdet),
           Kommentti: kommentti,
-        //   Kuva: kuva,
+          Kuva: kuva,
         //   Viivakoodi: viivakoodi
         }
     
@@ -209,6 +211,12 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         <Pressable onPress={() => editViinionPress(viiniNimi)}>
                             <View><Octicons name="check" size={24} color="green" /></View> 
                         </Pressable>
+
+                        <Pressable onPress={() => {setShowCamera(true)}}>
+                            <View>
+                                <FontAwesome5 name="camera" size={30} color="black" />
+                            </View>
+                        </Pressable>
                     
                         <Pressable onPress={() => closeModal()}>
                             <View><Octicons name="x" size={24} color="black" /></View>
@@ -217,6 +225,22 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
 
                     {/* <Text style={styles.inputHeaderTitle}>Viinin muokkaus:</Text> */}
 
+                    <View style={styles.centerSection}>
+                        <Image
+                            source={{ uri: "https://www.tibs.org.tw/images/default.jpg" }}
+                            // source={{kuva ? { uri: kuva } : { uri: "https://www.tibs.org.tw/images/default.jpg"}}
+                            style={[
+                            styles.centerSection,
+                            {
+                                
+                                height: 250,
+                                width: 250,
+                                backgroundColor: "#eeeeee",
+                                margin: 6,
+                            },
+                            ]}
+                        />
+                    </View>
                     
                     <Rating
                         showRating
@@ -242,7 +266,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                     <Text style={styles.inputTitle}>Hinta:</Text>
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
-                        onChangeText={val => setHinta(val)}
+                        onChangeText={val => setHinta(Number(val))}
                         value={(hinta.toString() == null ? '0' : hinta.toString())}
                         placeholderTextColor="#bdbbb7"
                         autoCapitalize="none"

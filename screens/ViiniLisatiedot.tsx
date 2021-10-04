@@ -22,6 +22,7 @@ interface IViinilista {
 
 const ViiniLisatiedot = ({ passViiniId, closeModal }:any) => {
     const [viini, setViini] = useState<Partial<IViinilista>>({})
+    const [star, setStar] = useState(0)
 
     useEffect(() => {
       HaeViiniInfo()

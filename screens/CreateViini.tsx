@@ -1,13 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { Platform, Image, StyleSheet, Text, View, ScrollView, Pressable, TouchableHighlight, TextInput, Switch } from 'react-native';
+import { Platform, Image, Text, View, ScrollView, Pressable, TextInput } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import {Picker} from '@react-native-picker/picker';
 import { FontAwesome5, Octicons } from '@expo/vector-icons';
 import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/components/GestureHandlerButton';
-import styles from '../styles/styles'
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Camera} from 'expo-camera'
+
+import { Camera } from 'expo-camera';
+import { Button } from "react-native-paper";
+
+import styles from '../styles/styles'
+import CameraModule from './CameraModule'
 
 //Filtteriä
 interface ITyypit {
@@ -44,18 +48,12 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     const [rypaleet, setRypaleet] = useState<any>([])
     const [valittuRypale, setValittuRypale] = useState<any>("All")
 
-    //CAMERA
-    const [startCamera, setStartCamera] = useState(false)
+    //KAMERA
+    const [image, setImage] = useState(null);
+    const [camera, setShowCamera] = useState(false);
+    const [hasPermission, setHasPermission] = useState(null);
+  
 
-    const __startCamera = async () => {
-        const {status} = await Camera.requestPermissionsAsync()
-        if (status === 'granted') {
-          // start the camera
-          setStartCamera(true)
-        } else {
-          alert('Access denied')
-        }
-      }
 
     const tyyppiLista = tyypit.map((tyyp: ITyypit, index: any) => {
         return(
@@ -76,10 +74,21 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     })
 
     useEffect(() => {
+        // (async () => {
+        //     const { status } = await Camera.requestPermissionsAsync();
+        //     setHasPermission(status === "granted");
+        //   })()
         HaeTyypit()
         HaeRypaleet()
         HaeMaat()
     }, [])
+
+    // if (hasPermission === null) {
+    //     return <View />;
+    //   }
+    //   if (hasPermission === false) {
+    //     return <Text>No access to camera</Text>;
+    //   }
 
 
 
@@ -202,8 +211,10 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                             <View><FontAwesome5 name="check" size={24} color="green" /></View> 
                         </Pressable>
 
-                        <Pressable onPress={__startCamera}>
-                            <View><FontAwesome5 name="camera" size={28} color="black" /></View> 
+                        <Pressable onPress={() => {setShowCamera(true)}}>
+                            <View>
+                                <FontAwesome5 name="camera" size={30} color="black" />
+                            </View>
                         </Pressable>
                     
                         <Pressable onPress={() => closeModal()}>
@@ -215,7 +226,8 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
 
                     <View style={styles.centerSection}>
                         <Image
-                            source={{uri: "https://www.tibs.org.tw/images/default.jpg"}}
+                            source={{ uri: "https://www.tibs.org.tw/images/default.jpg" }}
+                            // source={{kuva ? { uri: kuva } : { uri: "https://www.tibs.org.tw/images/default.jpg"}}
                             style={[
                             styles.centerSection,
                             {
@@ -251,18 +263,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         
                     />
                     {/* { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )} */}
-
-                    
-
-                    {/* <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setTahdet(val)}
-                        placeholderTextColor="#bdbbb7"
-                        placeholder="Anna tuotteen tähdet"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    /> */}
 
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
@@ -311,7 +311,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         onChangeText={val => setKommentti(val)}
                         placeholderTextColor="#bdbbb7"
                         placeholder="Kommentti"
-                        autoCapitalize="none"
+                        autoCapitalize="sentences"
                         selectTextOnFocus={true}
                     />
 
@@ -321,6 +321,13 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                     </Pressable>
 
             </View>
+        {/* {camera && (
+            <CameraModule
+              showModal={camera}
+              setModalVisible={() => setShowCamera(false)}
+              setImage={(result) => setImage(result.uri)}
+            />
+          )} */}
         </ScrollView>
     </View>
 

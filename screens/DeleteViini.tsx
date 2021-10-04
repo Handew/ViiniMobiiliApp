@@ -6,7 +6,7 @@ import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/
 import styles from '../styles/styles'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-interface ViinilistaInterface {
+interface IViinilista {
     viiniId: number
     viiniNimi: string
     tyyppiId: number
@@ -39,7 +39,7 @@ const DeleteViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
       let uri = 'https://viinirestapi.azurewebsites.net/api/viini/' + passViiniId
       fetch(uri)
         .then(response => response.json())
-        .then((json: ViinilistaInterface) => {
+        .then((json: IViinilista) => {
           setViiniNimi(json.viiniNimi)
           setTyyppiId(json.tyyppiId.toString())
           setRypaleId(json.rypaleId.toString())
