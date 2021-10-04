@@ -18,7 +18,8 @@ interface IViinilista {
     tahdet: number
     kommentti: string
     // kuva: 
-    // viivakoodi: string 
+    // viivakoodi: string
+
 }
 
 //Filtteriä
@@ -41,22 +42,17 @@ interface IRypaleet {
 const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
     let viiniId = passViiniId
     const [viiniNimi, setViiniNimi] = useState('...')
-    const [tyyppiId, setTyyppiId] = useState('0')
-    const [rypaleId, setRypaleId] = useState('0')
+    const [tyyppiId, setTyyppiId] = useState(0)
+    const [rypaleId, setRypaleId] = useState(0)
     const [maaId, setMaaId] = useState(0)
-    const [hinta, setHinta] = useState('0')
-    const [tahdet, setTahdet] = useState('0')
+    const [hinta, setHinta] = useState(0.00)
+    const [tahdet, setTahdet] = useState(0.0)
     const [kommentti, setKommentti] = useState('...')
     //FILTER
     const [tyypit, setTyypit] = useState<any>([])
-    const [valittuTyyppi, setValittuTyyppi] = useState<any>("All")
-
     const [maat, setMaat] = useState<any>([])
-    const [valittuMaa, setValittuMaa] = useState<any>("All")
-    const [maa, setMaa] = useState({})
-
     const [rypaleet, setRypaleet] = useState<any>([])
-    const [valittuRypale, setValittuRypale] = useState<any>("All")
+
 
     let validaatio = true
 
@@ -91,11 +87,11 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
         .then(response => response.json())
         .then((json: IViinilista) => {
           setViiniNimi(json.viiniNimi)
-          setTyyppiId(json.tyyppiId.toString())
-          setRypaleId(json.rypaleId.toString())
+          setTyyppiId(json.tyyppiId)
+          setRypaleId(json.rypaleId)
           setMaaId(json.maaId)
-          setHinta(json.hinta.toString())
-          setTahdet(json.tahdet.toString())
+          setHinta(json.hinta)
+          setTahdet(json.tahdet)
           setKommentti(json.kommentti)
         })
     }
@@ -192,20 +188,16 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
 
     //Filteröintiin
     const fetchFilteredTyyppi = (value: any) => {
-        setValittuTyyppi(value)
         setTyyppiId(value)
     }
 
     const fetchFilteredRypale = (value: any) => {
-        setValittuRypale(value)
         setRypaleId(value)
     }
 
 
 
     const fetchFilteredMaa = (value: any) => {
-        console.log(maat)
-        setValittuMaa(value)
         setMaaId(value)
     }
 
@@ -259,71 +251,34 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                     />
                     {/* { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )} */}
 
-                    {/* <Text style={styles.inputTitle}>Tyyppi Id:</Text>
-                    <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setTyyppiId((val))}
-                        value={tyyppiId.toString()}
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    /> */}
-
                     <Text style={styles.inputTitle}>Viinin tyyppi:</Text>
                     <Picker
-                        selectedValue={valittuTyyppi}
+                        selectedValue={tyyppiId}
                         style={{height: 50, width: 250}}
-                        onValueChange={(itemValue) => fetchFilteredTyyppi(itemValue)}
+                        onValueChange={itemValue => {fetchFilteredTyyppi(itemValue)}}
                     >
-                        <Picker.Item label={"ID: " + tyyppiId + " - " + tyypit.tyyppi1} />
                         {tyyppiLista}
 
                     </Picker>
 
                     {/* { validateNumeric(tyyppiId) == true ? null : ( <Text style={styles.validationError}>Anna varastomääräksi numero</Text> )} */}
 
-                    {/* <Text style={styles.inputTitle}>Rypäle ID:</Text>
-                    <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setRypaleId(val)}
-                        value={rypaleId.toString()}
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    /> */}
-
                     <Text style={styles.inputTitle}>Rypäle:</Text>
                     <Picker
-                        selectedValue={valittuRypale}
+                        selectedValue={rypaleId}
                         style={{height: 50, width: 250}}
-                        onValueChange={(value) => fetchFilteredRypale(value)}
+                        onValueChange={value => {fetchFilteredRypale(value)}}
                     >
-                        <Picker.Item label={"ID: " + rypaleId + " - " + rypaleet.rypale1} />
                         {rypaleLista}
 
                     </Picker>
 
-                    {/* <Text style={styles.inputTitle}>Maa ID:</Text>
-                    <TextInput style={styles.editInput}
-                        underlineColorAndroid="transparent"
-                        onChangeText={val => setMaaId(val)}
-                        value={maaId.toString()}
-                        placeholderTextColor="#9a73ef"
-                        autoCapitalize="none"
-                        keyboardType='numeric'
-                        selectTextOnFocus={true}
-                    /> */}
-
                     <Text style={styles.inputTitle}>Maa:</Text>
                     <Picker
-                        selectedValue={valittuMaa}
+                        selectedValue={maaId}
                         style={{height: 50, width: 250}}
-                        onValueChange={(value) => fetchFilteredMaa(value)}
+                        onValueChange={value => {fetchFilteredMaa(value)}}
                     >
-                        <Picker.Item label={"ID: " + maaId + " - " + maat.maa1} />
-                    
                         {maaLista}
 
                     </Picker>
@@ -337,15 +292,6 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         autoCapitalize="none"
                         selectTextOnFocus={true}
                     />
-
-                    {/* <Text style={styles.inputTitle}>Tavarantoimittaja:</Text>
-                    <Picker
-                        selectedValue={selectedSupp}
-                        style={{height:50,width:250}}
-                        onValueChange={(itemValue) => fetchFilteredSupp(itemValue)}>
-                        <Picker.Item label={"ID: " + supplierId + " - " + suppliers.companyName} />
-                        {suppliersList}
-                    </Picker> */}
 
             </View>
         </ScrollView>

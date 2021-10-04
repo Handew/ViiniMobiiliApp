@@ -47,9 +47,15 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     //CAMERA
     const [startCamera, setStartCamera] = useState(false)
 
-    const __startCamera = () => {
-
-    }
+    const __startCamera = async () => {
+        const {status} = await Camera.requestPermissionsAsync()
+        if (status === 'granted') {
+          // start the camera
+          setStartCamera(true)
+        } else {
+          alert('Access denied')
+        }
+      }
 
     const tyyppiLista = tyypit.map((tyyp: ITyypit, index: any) => {
         return(
