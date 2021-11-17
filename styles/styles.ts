@@ -6,6 +6,7 @@ const styles = StyleSheet.create({
 
     //Pääohjelman tyylit
     mainWrapper: {
+        paddingTop: 40,
         flex: 1, 
         backgroundColor: '#f6f6f6',
     },
@@ -220,6 +221,15 @@ const styles = StyleSheet.create({
     galleryImage: { 
         width: 75, 
         height: 75 
+    },  
+    capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 15,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    margin: 20,
     },
 
 });

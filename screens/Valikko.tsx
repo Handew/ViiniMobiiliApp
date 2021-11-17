@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity, Text, View } from 'react-native';
 // import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 
-export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+export default function Valikko({ navigation }: RootTabScreenProps<'TabOne'>) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ViiniApp *icon*</Text>

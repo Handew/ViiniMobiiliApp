@@ -1,17 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect} from 'react';
-import { Platform, Image, Text, View, ScrollView, Pressable, TextInput } from 'react-native';
+import { Platform, Image, Text, View, ScrollView, Pressable, TextInput, AppRegistry, StyleSheet } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import {Picker} from '@react-native-picker/picker';
 import { FontAwesome5, Octicons } from '@expo/vector-icons';
 import RNGestureHandlerButton from 'react-native-gesture-handler/lib/typescript/components/GestureHandlerButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { Camera } from 'expo-camera';
-import { Button } from "react-native-paper";
-
 import styles from '../styles/styles'
-import CameraModule from './CameraModule'
+//import CameraModule from './CameraModule'
+//import CameraTesti from "./CameraTesti"
 
 //Filtteriä
 interface ITyypit {
@@ -48,12 +46,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     const [rypaleet, setRypaleet] = useState<any>([])
     const [valittuRypale, setValittuRypale] = useState<any>("All")
 
-    //KAMERA
-    const [image, setImage] = useState(null);
-    const [camera, setShowCamera] = useState(false);
-    const [hasPermission, setHasPermission] = useState(null);
-  
-
 
     const tyyppiLista = tyypit.map((tyyp: ITyypit, index: any) => {
         return(
@@ -74,23 +66,10 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
     })
 
     useEffect(() => {
-        // (async () => {
-        //     const { status } = await Camera.requestPermissionsAsync();
-        //     setHasPermission(status === "granted");
-        //   })()
         HaeTyypit()
         HaeRypaleet()
         HaeMaat()
     }, [])
-
-    // if (hasPermission === null) {
-    //     return <View />;
-    //   }
-    //   if (hasPermission === false) {
-    //     return <Text>No access to camera</Text>;
-    //   }
-
-
 
     const HaeTyypit = () => {
         let uri = "https://viinirestapi.azurewebsites.net/api/viini/gettyyppi";
@@ -125,8 +104,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
 
     async function createViinionPress (viiniNimi: string) {
         if (Platform.OS === 'web') {
-            if (validaatio == false) {
-                alert('Viiniä ' + viiniNimi + ' ei voi tallentaa tietojen puutteellisuuden vuoksi!')
+            if (validateOnSubmit() == false) {
             } else {
                 await PostToDB()
                 console.log('Viini ' + viiniNimi + ' lisätty onnistuneesti')
@@ -135,8 +113,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
             }
         }
         else {
-            if (validaatio == false) {
-                alert('Viiniä ' + viiniNimi + ' ei voi tallentaa tietojen puutteellisuuden vuoksi!')
+            if (validateOnSubmit() == false) {
             } else {
                 await PostToDB()
                 alert('Viini ' + viiniNimi + ' lisätty onnistuneesti!')
@@ -201,6 +178,48 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
         setMaaId(value)
     }
 
+    // Hinnan validaatio
+    const validatePrice = (val: any) => {
+        if (val === null){
+        return true
+        } 
+        else {
+            var rgx = /^[0-9]*\.?[0-9]*$/
+            if (String(val).match(rgx) == null) {
+                return false
+            }
+            else {
+                return true
+            }
+        }
+    }
+
+    // Merkkijonon validaatio (MAX 40 merkkiä)
+    const validateString = (val: any) => {
+        if (val === "") {
+            return false
+        }
+        else {
+            var rgx = /^.{1,40}$/
+            if (val.match(rgx) == null) {
+                return false
+            }
+            else {
+                return true
+            }
+        }
+    }
+
+    const validateOnSubmit = () => {
+        if (!validateString(viiniNimi)) {
+            return false
+        } else if (!validatePrice(hinta)) {
+            return false
+        } else {
+            return true
+        }
+    }
+
 
     return (
         <View style={styles.inputContainer}>
@@ -211,7 +230,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                             <View><FontAwesome5 name="check" size={24} color="green" /></View> 
                         </Pressable>
 
-                        <Pressable onPress={() => {setShowCamera(true)}}>
+                        <Pressable >
                             <View>
                                 <FontAwesome5 name="camera" size={30} color="black" />
                             </View>
@@ -221,8 +240,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                             <View><FontAwesome5 name="times" size={24} color="black" /></View>
                         </Pressable>
                     </View>
-
-                    {/* <Text style={styles.inputHeaderTitle}>Viinin lisäys:</Text> */}
 
                     <View style={styles.centerSection}>
                         <Image
@@ -262,7 +279,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         selectTextOnFocus={true}
                         
                     />
-                    {/* { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )} */}
+                    { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )}
 
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
@@ -273,7 +290,8 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
-                    {/* { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )} */}
+
+                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )}
 
                     <Picker
                         selectedValue={valittuTyyppi}
@@ -283,9 +301,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         {tyyppiLista}
                     </Picker>
 
-                    {/* { validateNumeric(tyyppiId) == true ? null : ( <Text style={styles.validationError}>Anna varastomääräksi numero</Text> )} */}
-
-                    {/* <Text style={styles.inputTitle}>Rypälelajike:</Text> */}
                     <Picker
                         selectedValue={valittuRypale}
                         style={{height:50,width:250}}
@@ -294,7 +309,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         {rypaleLista}
                     </Picker>
 
-                    {/* <Text style={styles.inputTitle}>Viinin tuottaja maa:</Text> */}
                     <Picker
                         selectedValue={valittuMaa}
                         style={{height:50,width:250}}
@@ -303,7 +317,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         {maaLista}
                     </Picker>
 
-                    {/* <Text style={styles.inputTitle}>Kommentti:</Text> */}
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
                         multiline
@@ -321,13 +334,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                     </Pressable>
 
             </View>
-        {/* {camera && (
-            <CameraModule
-              showModal={camera}
-              setModalVisible={() => setShowCamera(false)}
-              setImage={(result) => setImage(result.uri)}
-            />
-          )} */}
         </ScrollView>
     </View>
 

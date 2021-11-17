@@ -128,8 +128,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
 
     async function editViinionPress (viiniNimi: string) {
         if (Platform.OS === 'web') {
-            if (validaatio == false) {
-                alert('Viiniä ' + viiniNimi + ' c')
+            if (validateOnSubmit() == false) {
             } else {
                 await PutToDB()
                 console.log('Viiniä ' + viiniNimi + ' muokattu onnistuneesti')
@@ -138,8 +137,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
             }
         }
         else {
-            if (validaatio == false) {
-                alert('Viiniä ' + viiniNimi + ' ei voi tallentaa tietojen puutteellisuuden vuoksi!')
+            if (validateOnSubmit() == false) {
             } else {
                 await PutToDB()
                 alert('Viiniä ' + viiniNimi + ' muokattu onnistuneesti!')
@@ -203,6 +201,49 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
         setMaaId(value)
     }
 
+    // Hinnan validaatio
+    const validatePrice = (val: any) => {
+        if (val === null){
+        return true
+        } 
+        else {
+            var rgx = /^[0-9]*\.?[0-9]*$/
+            if (String(val).match(rgx) == null) {
+                return false
+            }
+            else {
+                return true
+            }
+        }
+    }
+
+    // Merkkijonon validaatio (MAX 40 merkkiä)
+    const validateString = (val: any) => {
+        if (val === "") {
+            return false
+        }
+        else {
+            var rgx = /^.{1,40}$/
+            if (val.match(rgx) == null) {
+                return false
+            }
+            else {
+                return true
+            }
+        }
+    }
+
+    const validateOnSubmit = () => {
+        if (!validateString(viiniNimi)) {
+            return false
+        } else if (!validatePrice(hinta)) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+
     return (
         <View style={styles.inputContainer}>
             <ScrollView>
@@ -261,19 +302,19 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         autoCapitalize="none"
                         selectTextOnFocus={true}
                     />
-                    {/* { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )} */}
+                    { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )}
         
                     <Text style={styles.inputTitle}>Hinta:</Text>
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
-                        onChangeText={val => setHinta(Number(val))}
+                        onChangeText={val => setHinta(val)}
                         value={(hinta.toString() == null ? '0' : hinta.toString())}
                         placeholderTextColor="#bdbbb7"
                         autoCapitalize="none"
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
-                    {/* { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )} */}
+                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )}
 
                     <Text style={styles.inputTitle}>Viinin tyyppi:</Text>
                     <Picker
@@ -284,8 +325,6 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         {tyyppiLista}
 
                     </Picker>
-
-                    {/* { validateNumeric(tyyppiId) == true ? null : ( <Text style={styles.validationError}>Anna varastomääräksi numero</Text> )} */}
 
                     <Text style={styles.inputTitle}>Rypäle:</Text>
                     <Picker
