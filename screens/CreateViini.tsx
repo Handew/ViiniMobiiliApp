@@ -28,13 +28,13 @@ interface IRypaleet {
 }
 
 const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
-    const [viiniNimi, setViiniNimi] = useState('...')
-    const [tyyppiId, setTyyppiId] = useState('0')
-    const [rypaleId, setRypaleId] = useState('0')
-    const [maaId, setMaaId] = useState('0')
-    const [hinta, setHinta] = useState('0')
-    const [tahdet, setTahdet] = useState('0')
-    const [kommentti, setKommentti] = useState('...')
+    const [viiniNimi, setViiniNimi] = useState('')
+    const [tyyppiId, setTyyppiId] = useState(0)
+    const [rypaleId, setRypaleId] = useState(0)
+    const [maaId, setMaaId] = useState(0)
+    const [hinta, setHinta] = useState()
+    const [tahdet, setTahdet] = useState(0.0)
+    const [kommentti, setKommentti] = useState('')
     const [kuva, setKuva] = useState()
     //FILTER
     const [tyypit, setTyypit] = useState<any>([])
@@ -97,9 +97,6 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
             setMaat(json);
           });
     }
-
-
-    let validaatio = true
 
 
     async function createViinionPress (viiniNimi: string) {
@@ -180,8 +177,8 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
 
     // Hinnan validaatio
     const validatePrice = (val: any) => {
-        if (val === null){
-        return true
+        if (val === ''){
+        return false
         } 
         else {
             var rgx = /^[0-9]*\.?[0-9]*$/
@@ -194,13 +191,13 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
         }
     }
 
-    // Merkkijonon validaatio (MAX 40 merkkiä)
+    // Merkkijonon validaatio (MAX 80 merkkiä)
     const validateString = (val: any) => {
         if (val === "") {
             return false
         }
         else {
-            var rgx = /^.{1,40}$/
+            var rgx = /^.{1,80}$/
             if (val.match(rgx) == null) {
                 return false
             }
@@ -212,8 +209,10 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
 
     const validateOnSubmit = () => {
         if (!validateString(viiniNimi)) {
+            alert("Tarkista tuotteen nimi!")
             return false
         } else if (!validatePrice(hinta)) {
+            alert("Tarkista tuotteen hinta!")
             return false
         } else {
             return true
@@ -269,7 +268,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
 
                     </Rating>
 
-                    {/* <Text style={styles.inputTitle}>Nimi:</Text> */}
+
                     <TextInput style={styles.editInput} 
                         underlineColorAndroid="transparent"
                         onChangeText={val => setViiniNimi(val)}
@@ -290,8 +289,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
-
-                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )}
+                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa 0.00!</Text> )}
 
                     <Picker
                         selectedValue={valittuTyyppi}

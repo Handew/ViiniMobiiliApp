@@ -41,21 +41,19 @@ interface IRypaleet {
 
 const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
     let viiniId = passViiniId
-    const [viiniNimi, setViiniNimi] = useState('...')
+    const [viiniNimi, setViiniNimi] = useState('')
     const [tyyppiId, setTyyppiId] = useState(0)
     const [rypaleId, setRypaleId] = useState(0)
     const [maaId, setMaaId] = useState(0)
     const [hinta, setHinta] = useState(0.00)
     const [tahdet, setTahdet] = useState(0.0)
-    const [kommentti, setKommentti] = useState('...')
+    const [kommentti, setKommentti] = useState('')
     const [kuva, setKuva] = useState('')
     //FILTER
     const [tyypit, setTyypit] = useState<any>([])
     const [maat, setMaat] = useState<any>([])
     const [rypaleet, setRypaleet] = useState<any>([])
 
-
-    let validaatio = true
 
     useEffect(() => {
         HaeTyypit()
@@ -203,11 +201,11 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
 
     // Hinnan validaatio
     const validatePrice = (val: any) => {
-        if (val === null){
-        return true
+        if (val === ''){
+        return false
         } 
         else {
-            var rgx = /^[0-9]*\.?[0-9]*$/
+            var rgx = /^[1-9]*\.?[0-9]*$/
             if (String(val).match(rgx) == null) {
                 return false
             }
@@ -217,13 +215,13 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
         }
     }
 
-    // Merkkijonon validaatio (MAX 40 merkkiä)
+    // Merkkijonon validaatio (MAX 80 merkkiä)
     const validateString = (val: any) => {
         if (val === "") {
             return false
         }
         else {
-            var rgx = /^.{1,40}$/
+            var rgx = /^.{1,80}$/
             if (val.match(rgx) == null) {
                 return false
             }
@@ -253,7 +251,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                             <View><Octicons name="check" size={24} color="green" /></View> 
                         </Pressable>
 
-                        <Pressable onPress={() => {setShowCamera(true)}}>
+                        <Pressable onPress={() => {}}>
                             <View>
                                 <FontAwesome5 name="camera" size={30} color="black" />
                             </View>
@@ -314,7 +312,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
-                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa n.zz!</Text> )}
+                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa 0.00!</Text> )}
 
                     <Text style={styles.inputTitle}>Viinin tyyppi:</Text>
                     <Picker

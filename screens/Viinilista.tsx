@@ -1,15 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
-  Platform,
-  StyleSheet,
   Text,
   View,
   Image,
   ScrollView,
   Pressable,
   Modal,
-  TouchableHighlight,
   ActivityIndicator,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -21,16 +18,18 @@ import EditViini from "./EditViini";
 import CreateViini from "./CreateViini";
 import DeleteViini from "./DeleteViini";
 import { Picker } from "@react-native-picker/picker";
+import { Rating } from "react-native-ratings";
 
 interface IViinilista {
-  viiniId: number;
-  viiniNimi: string;
-  tyyppiId: number;
-  rypaleId: number;
-  maaId: number;
-  hinta: number;
-  tahdet: number;
-  kommentti: string;
+  viiniId: number
+  viiniNimi: string
+  tyyppiId: number
+  tyyppi: string
+  rypaleId: number
+  maaId: number
+  hinta: number
+  tahdet: number
+  kommentti: string
   Kuva: string;
   // Viivakoodi: string
 }
@@ -43,6 +42,7 @@ interface ITyypit {
 
 export default function Viinilista() {
   const [viini, setViini] = useState<Partial<IViinilista>>({});
+  const [tahdet, setTahdet] = useState(0.0)
   const [tallennetutViinit, setTallennetutViinit] = useState<any>([]);
   const [tallennetutViinitYhteensä, setTallennetutViinitYhteensä] = useState(0);
   const [viiniTietoModal, setViiniTietoModal] = useState(false);
@@ -58,8 +58,9 @@ export default function Viinilista() {
 
   useEffect(() => {
     HaeTyypit()
-    HaeViinit();
-  }, [refreshViinit]);
+    HaeViinit()
+    HaeViiniInfo()
+  }, [refreshViinit])
 
   const tyyppiLista = tyypit.map((tyyp: ITyypit, index: any) => {
     return(
@@ -95,6 +96,15 @@ export default function Viinilista() {
         setTyypit(json);
       });
     setRefreshIndicator(false);
+  }
+
+  const HaeViiniInfo = () => {
+    let uri = 'https://viinirestapi.azurewebsites.net/api/viini/lisatiedot/' + viini.viiniId
+    fetch(uri)
+      .then(response => response.json())
+      .then((json: IViinilista) => {
+        setViini(json)
+      })
   }
 
   const refreshJsonData = () => {
@@ -216,12 +226,20 @@ export default function Viinilista() {
                 ]}
               />
               <View style={{ flexGrow: 1, flexShrink: 1, alignSelf: "center" }}>
-                <Text style={{ fontSize: 15 }}>{item.viiniNimi}</Text>
-                <Text style={{ color: "#8f8f8f" }}>
-                  {"RypäleId " + item.rypaleId}
-                </Text>
-                <Text style={{ color: "#333333", marginBottom: 10 }}>
-                  {"\u00E1 " +
+                <Text style={{ fontSize: 15, alignSelf: "center" }}>{item.viiniNimi}</Text>
+
+                <Rating
+                  type="star"
+                  imageSize={20}
+                  fractions={1}
+                  startingValue={Number(item.tahdet)}
+                >
+
+                </Rating>
+
+
+                <Text style={{ color: "#333333", marginBottom: 10, alignSelf: "center" }}>
+                  {
                     (item.hinta == null
                       ? "hinta puuttuu "
                       : item.hinta.toFixed(2)) +
