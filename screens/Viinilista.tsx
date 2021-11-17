@@ -231,12 +231,9 @@ export default function Viinilista() {
                 <Rating
                   type="star"
                   imageSize={20}
-                  fractions={1}
-                  startingValue={Number(item.tahdet)}
+                  readonly startingValue={Number(item.tahdet)}
                 >
-
                 </Rating>
-
 
                 <Text style={{ color: "#333333", marginBottom: 10, alignSelf: "center" }}>
                   {
