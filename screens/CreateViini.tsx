@@ -278,7 +278,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         selectTextOnFocus={true}
                         
                     />
-                    { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )}
+                    { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi</Text> )}
 
                     <TextInput style={styles.editInput}
                         underlineColorAndroid="transparent"
@@ -289,7 +289,7 @@ const CreateViini = ({ closeModal, refreshAfterEdit }:any) => {
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
-                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa 0.00!</Text> )}
+                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa 0.00</Text> )}
 
                     <Picker
                         selectedValue={valittuTyyppi}

@@ -300,7 +300,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         autoCapitalize="none"
                         selectTextOnFocus={true}
                     />
-                    { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi!</Text> )}
+                    { validateString(viiniNimi) == true ? null : ( <Text style={styles.validationError}>Anna viinin nimi</Text> )}
         
                     <Text style={styles.inputTitle}>Hinta:</Text>
                     <TextInput style={styles.editInput}
@@ -312,7 +312,7 @@ const EditViini = ({ passViiniId, closeModal, refreshAfterEdit }:any) => {
                         keyboardType='numeric'
                         selectTextOnFocus={true}
                     />
-                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa 0.00!</Text> )}
+                    { validatePrice(hinta) == true ? null : ( <Text style={styles.validationError}>Anna hinta muodossa 0.00</Text> )}
 
                     <Text style={styles.inputTitle}>Viinin tyyppi:</Text>
                     <Picker
