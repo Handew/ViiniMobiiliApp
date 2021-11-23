@@ -36,15 +36,13 @@ const ViiniLisatiedot = ({ passViiniId, closeModal }:any) => {
           setViini(json)
         })
     }
+    
     if (viini){
       return (
 
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            {/* <Text style={styles.modalText}>Viinin tarkemmat tiedot:</Text> */}
               <View style={styles.modalInfo}>
-                  {/* <Text style={styles.modalTextTitle}>{'Viini Id: '}</Text> */}
-                  {/* <Text style={styles.modalText}>{viini.viiniId}</Text> */}
               </View>
   
               {/* <View style={styles.modalInfo}>
